@@ -1,3 +1,4 @@
+---
 - name: Ensure necessary directories exist
   hosts: piwigo
   remote_user: root
