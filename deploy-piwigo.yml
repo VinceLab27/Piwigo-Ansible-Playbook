@@ -1,0 +1,34 @@
+- name: Ensure necessary directories exist
+  hosts: piwigo
+  remote_user: root
+  tasks:
+    - name: Create the application directory
+      file:
+        path: /home/root/piwigo-deployment-r
+        state: directory
+
+- name: Deploy Piwigo
+  hosts: piwigo
+  remote_user: root
+  tasks:
+    - name: Install Docker on Debian/Ubuntu
+      apt:
+        name: docker.io
+        state: present
+      when: "ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'"
+
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: 'a+x'
+      when: "ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'"
+
+    - name: Copy Docker Compose file
+      copy:
+        src: /home/student/piwigo-deployment/docker-compose.yml
+        dest: /home/root/piwigo-deployment-r
+
+    - name: Start Piwigo services using Docker Compose
+      command: docker-compose -f /home/root/piwigo-deployment-r/docker-compose.yml up -d
+
